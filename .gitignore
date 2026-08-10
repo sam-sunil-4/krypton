@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # Compiled Go Binaries & Build Output
-/krypton
+# /krypton (Pre-compiled binary tracked for 1-click execution)
 *.exe
 *.exe.manifest
 *.dll
