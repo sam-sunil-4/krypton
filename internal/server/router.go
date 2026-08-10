@@ -354,6 +354,117 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 			})
 		}
 
+		// Slash-safe Resource Listing via Query Parameters
+		api.GET("/resources/list", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			ns := c.Query("namespace")
+			if ns == "" {
+				ns = c.Param("namespace")
+			}
+			if ns == "all" || ns == "_all" || ns == "all-namespaces" {
+				ns = ""
+			}
+			kind := c.Query("kind")
+			if kind == "" {
+				kind = c.Param("kind")
+			}
+
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			var res interface{}
+			switch strings.ToLower(kind) {
+			case "pods":
+				res, err = k8s.ListPods(c, client, ns)
+			case "deployments":
+				res, err = k8s.ListDeployments(c, client, ns)
+			case "services":
+				res, err = k8s.ListServices(c, client, ns)
+			case "configmaps":
+				res, err = k8s.ListConfigMaps(c, client, ns)
+			case "secrets":
+				res, err = k8s.ListSecrets(c, client, ns)
+			case "ingresses":
+				res, err = k8s.ListIngresses(c, client, ns)
+			case "statefulsets":
+				res, err = k8s.ListStatefulSets(c, client, ns)
+			case "daemonsets":
+				res, err = k8s.ListDaemonSets(c, client, ns)
+			case "serviceaccounts":
+				res, err = k8s.ListServiceAccounts(c, client, ns)
+			case "pvcs":
+				res, err = k8s.ListPVCs(c, client, ns)
+			case "hpas":
+				res, err = k8s.ListHPAs(c, client, ns)
+			case "cronjobs":
+				res, err = k8s.ListCronJobs(c, client, ns)
+			case "jobs":
+				res, err = k8s.ListJobs(c, client, ns)
+			case "roles":
+				res, err = k8s.ListRoles(c, client, ns)
+			case "clusterroles":
+				res, err = k8s.ListClusterRoles(c, client)
+			case "rolebindings":
+				res, err = k8s.ListRoleBindings(c, client, ns)
+			case "clusterrolebindings":
+				res, err = k8s.ListClusterRoleBindings(c, client)
+			case "storageclasses":
+				res, err = k8s.ListStorageClasses(c, client)
+			default:
+				c.JSON(http.StatusBadRequest, gin.H{"error": "unknown resource type: " + kind})
+				return
+			}
+
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, res)
+		})
+
+		api.GET("/resources/namespaces", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			res, err := k8s.ListNamespaces(c, client)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, res)
+		})
+
+		api.GET("/resources/nodes", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			res, err := k8s.ListNodes(c, client)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, res)
+		})
+
+		// Legacy Path Param Fallbacks
 		api.GET("/resources/:context/nodes", func(c *gin.Context) {
 			client, err := clients.GetClient(c.Param("context"))
 			if err != nil {
@@ -383,6 +494,38 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 		})
 
 		// Resource Live Metrics Endpoint
+		api.GET("/metrics", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			ns := c.Query("namespace")
+			if ns == "" {
+				ns = c.Param("namespace")
+			}
+			kind := c.Query("kind")
+			if kind == "" {
+				kind = c.Param("kind")
+			}
+			name := c.Query("name")
+			if name == "" {
+				name = c.Param("name")
+			}
+
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			metrics, err := k8s.GetResourceMetrics(c, client, kind, ns, name)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, metrics)
+		})
+
 		api.GET("/metrics/:context/:namespace/:kind/:name", func(c *gin.Context) {
 			ctxName := c.Param("context")
 			ns := c.Param("namespace")
@@ -404,6 +547,41 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 		})
 
 		// Resource Historical Telemetry Endpoint
+		api.GET("/metrics-history", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			ns := c.Query("namespace")
+			if ns == "" {
+				ns = c.Param("namespace")
+			}
+			kind := c.Query("kind")
+			if kind == "" {
+				kind = c.Param("kind")
+			}
+			name := c.Query("name")
+			if name == "" {
+				name = c.Param("name")
+			}
+			timeRange := c.DefaultQuery("range", "15m")
+			fromStr := c.Query("from")
+			toStr := c.Query("to")
+
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
+			history, err := k8s.GetResourceMetricsHistory(c, client, kind, ns, name, timeRange, fromStr, toStr)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, history)
+		})
+
 		api.GET("/metrics-history/:context/:namespace/:kind/:name", func(c *gin.Context) {
 			ctxName := c.Param("context")
 			ns := c.Param("namespace")
@@ -487,6 +665,31 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 		})
 
 		// Topology
+		api.GET("/topology", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			ns := c.Query("namespace")
+			if ns == "" {
+				ns = c.Param("namespace")
+			}
+			if ns == "all" || ns == "_all" || ns == "all-namespaces" {
+				ns = ""
+			}
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			graph, err := k8s.BuildTopology(c, client, ns)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, graph)
+		})
+
 		api.GET("/topology/:context/:namespace", func(c *gin.Context) {
 			client, err := clients.GetClient(c.Param("context"))
 			if err != nil {
@@ -506,6 +709,28 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 		})
 
 		// Events
+		api.GET("/events", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			ns := c.Query("namespace")
+			if ns == "" {
+				ns = c.Param("namespace")
+			}
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			events, err := k8s.FetchEvents(c, client, ns, k8s.EventOptions{})
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, events)
+		})
+
 		api.GET("/events/:context/:namespace", func(c *gin.Context) {
 			client, err := clients.GetClient(c.Param("context"))
 			if err != nil {
@@ -521,6 +746,38 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 		})
 
 		// Diagnostics
+		api.GET("/diagnostic", func(c *gin.Context) {
+			ctxName := c.Query("context")
+			if ctxName == "" {
+				ctxName = c.Param("context")
+			}
+			ns := c.Query("namespace")
+			if ns == "" {
+				ns = c.Param("namespace")
+			}
+			kind := c.Query("kind")
+			if kind == "" {
+				kind = c.Param("kind")
+			}
+			name := c.Query("name")
+			if name == "" {
+				name = c.Param("name")
+			}
+
+			client, err := clients.GetClient(ctxName)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			engine := diagnostic.NewDiagnosticEngine(client)
+			report, err := engine.RunDiagnostic(c, kind, name, ns)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			c.JSON(http.StatusOK, report)
+		})
+
 		api.GET("/diagnostic/:context/:namespace/:kind/:name", func(c *gin.Context) {
 			client, err := clients.GetClient(c.Param("context"))
 			if err != nil {
@@ -535,6 +792,7 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 			}
 			c.JSON(http.StatusOK, report)
 		})
+	}
 	}
 
 	// --- WebSocket for log streaming (supports both query params and path params) ---

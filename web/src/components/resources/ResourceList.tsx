@@ -127,6 +127,8 @@ export default function ResourceList() {
       .catch(() => {});
   }, [selectedContext]);
 
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
   // Main resource fetcher
   const fetchResources = (silent = false) => {
     if (!silent) setLoading(true);
@@ -136,11 +138,14 @@ export default function ResourceList() {
     resourceService.getResources(ctx, selectedNamespace, selectedResourceType)
       .then(data => {
         setResources(data || []);
+        setFetchError(null);
         setLoading(false);
         setIsRefreshing(false);
       })
-      .catch(() => {
+      .catch(err => {
+        const errorMsg = err.response?.data?.error || err.message || 'Failed to connect to cluster';
         setResources([]);
+        setFetchError(errorMsg);
         setLoading(false);
         setIsRefreshing(false);
       });
@@ -358,6 +363,27 @@ export default function ResourceList() {
         <div style={{ padding: '12px 20px', backgroundColor: actionMessage.success ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: actionMessage.success ? '#4ade80' : '#f87171', border: '1px solid var(--border-subtle)', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>{actionMessage.text}</span>
           <button onClick={() => setActionMessage(null)} style={{ color: 'inherit', fontWeight: 700 }}>✕</button>
+        </div>
+      )}
+
+      {/* CLUSTER CONNECTION ERROR BANNER */}
+      {fetchError && (
+        <div style={{ padding: '16px 20px', backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '12px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontWeight: 800, fontSize: '14px' }}>⚠️ Cluster Connection Error ({selectedContext})</span>
+            <button onClick={() => setFetchError(null)} style={{ color: 'inherit', fontWeight: 700 }}>✕</button>
+          </div>
+          <p style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', wordBreak: 'break-all', color: '#fca5a5' }}>
+            {fetchError}
+          </p>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+            <strong>Troubleshooting tips for AWS EKS / Corporate Clusters:</strong>
+            <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
+              <li>Ensure <code>aws</code> CLI is installed & accessible in PATH (`aws --version`).</li>
+              <li>If using terminal server or SSO, re-authenticate AWS credentials (`aws sso login` or export <code>AWS_PROFILE</code> / <code>AWS_ACCESS_KEY_ID</code>).</li>
+              <li>Verify company VPN or terminal server proxy is active if the cluster API endpoint is private.</li>
+            </ul>
+          </div>
         </div>
       )}
 

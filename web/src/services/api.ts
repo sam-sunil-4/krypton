@@ -80,17 +80,17 @@ export interface ResourceSummary {
 
 export const resourceService = {
   getNamespaces: async (context: string): Promise<ResourceSummary[]> => {
-    const res = await api.get(`/resources/${context}/namespaces`);
+    const res = await api.get(`/resources/namespaces?context=${encodeURIComponent(context)}`);
     return res.data || [];
   },
 
   getResources: async (context: string, namespace: string, kind: string): Promise<ResourceSummary[]> => {
-    const res = await api.get(`/resources/${context}/${namespace}/${kind}`);
+    const res = await api.get(`/resources/list?context=${encodeURIComponent(context)}&namespace=${encodeURIComponent(namespace)}&kind=${encodeURIComponent(kind)}`);
     return res.data || [];
   },
 
   getNodes: async (context: string): Promise<ResourceSummary[]> => {
-    const res = await api.get(`/resources/${context}/nodes`);
+    const res = await api.get(`/resources/nodes?context=${encodeURIComponent(context)}`);
     return res.data || [];
   },
 
@@ -189,7 +189,7 @@ export interface TopologyData {
 
 export const topologyService = {
   getTopology: async (context: string, namespace: string): Promise<TopologyData> => {
-    const res = await api.get(`/topology/${context}/${namespace}`);
+    const res = await api.get(`/topology?context=${encodeURIComponent(context)}&namespace=${encodeURIComponent(namespace)}`);
     return res.data;
   },
 };
@@ -209,7 +209,7 @@ export interface EventData {
 
 export const eventService = {
   getEvents: async (context: string, namespace: string): Promise<EventData[]> => {
-    const res = await api.get(`/events/${context}/${namespace}`);
+    const res = await api.get(`/events?context=${encodeURIComponent(context)}&namespace=${encodeURIComponent(namespace)}`);
     return res.data || [];
   },
 };
@@ -240,7 +240,7 @@ export interface DiagReport {
 
 export const diagnosticService = {
   runDiagnosis: async (context: string, namespace: string, kind: string, name: string): Promise<DiagReport> => {
-    const res = await api.get(`/diagnostic/${context}/${namespace}/${kind}/${name}`);
+    const res = await api.get(`/diagnostic?context=${encodeURIComponent(context)}&namespace=${encodeURIComponent(namespace)}&kind=${encodeURIComponent(kind)}&name=${encodeURIComponent(name)}`);
     return res.data;
   },
 };
@@ -267,12 +267,12 @@ export interface ResourceMetricData {
 
 export const metricsService = {
   getMetrics: async (context: string, namespace: string, kind: string, name: string): Promise<ResourceMetricData> => {
-    const res = await api.get(`/metrics/${context}/${namespace}/${kind}/${name}`);
+    const res = await api.get(`/metrics?context=${encodeURIComponent(context)}&namespace=${encodeURIComponent(namespace)}&kind=${encodeURIComponent(kind)}&name=${encodeURIComponent(name)}`);
     return res.data;
   },
 
   getMetricsHistory: async (context: string, namespace: string, kind: string, name: string, timeRange: string, from?: string, to?: string): Promise<ResourceMetricData[]> => {
-    let url = `/metrics-history/${context}/${namespace}/${kind}/${name}?range=${encodeURIComponent(timeRange)}`;
+    let url = `/metrics-history?context=${encodeURIComponent(context)}&namespace=${encodeURIComponent(namespace)}&kind=${encodeURIComponent(kind)}&name=${encodeURIComponent(name)}&range=${encodeURIComponent(timeRange)}`;
     if (from && to) {
       url += `&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
     }
