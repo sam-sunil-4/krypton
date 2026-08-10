@@ -1,0 +1,47 @@
+# ==============================================================================
+# Krypton Control Plane - Git Ignore Configuration
+# ==============================================================================
+
+# Compiled Go Binaries & Build Output
+krypton
+*.exe
+*.exe.manifest
+*.dll
+*.so
+*.dylib
+
+# Node.js Dependencies
+node_modules/
+web/node_modules/
+
+# Frontend Build Output (Vite)
+dist/
+web/dist/
+.vite/
+
+# Temporary Generated Design Systems & Agent Skills
+design-system/
+.agents/
+
+# macOS / OS Metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs & Temporary Scratch Files
+*.log
+scratch/
+tmp/
+
+# Environment Variables & Secret Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.pem
