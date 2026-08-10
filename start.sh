@@ -13,15 +13,16 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 echo -e "${GOLD}${BOLD}"
-echo "  _  _______ __   ______ _____ ____  _  _"
-echo " | |/ /  __ \\\ \ / /  _ \_   _/ __ \| || |"
-echo " | ' /| |__) |\ V /| |_) || || |  | | || |"
-echo " |  < |  _  /  | | |  _ < | || |  | | __  |"
-echo " | . \| | \ \  | | | |_) || || |__| |   | |"
-echo " |_|\_\_|  \_\ |_| |____/_____\____/|_| |_|"
-echo -e "${CYAN}   🚀 Krypton DevOps Control Plane (v1.0.0)${NC}\n"
+echo " _  __    _____    __   __   _____    _____     ____     _   _ "
+echo "| |/ /   |  __ \   \ \ / /  |  __ \  |_   _|   / __ \   | \ | |"
+echo "| ' /    | |__) |   \ V /   | |__) |   | |    | |  | |  |  \| |"
+echo "|  <     |  _  /     | |    |  ___/    | |    | |  | |  | . ` |"
+echo "| . \    | | \ \     | |    | |        | |    | |__| |  | |\  |"
+echo "|_|\_\   |_|  \_\    |_|    |_|        |_|     \____/   |_| \_|"
+echo -e "${CYAN}   🚀 Krypton DevOps Control Plane (v1.0.0)"
+echo -e "${GREEN}   ✨ Developed and maintained by Sam${NC}\n"
 
-# Step 1: Detect Operating System & Environment
+# Step 1: Ensure execution from root project directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
@@ -45,20 +46,33 @@ fi
 NODE_VERSION=$(node --version)
 echo -e "${GREEN}  ✓ Found Node.js (${NODE_VERSION})${NC}"
 
+# Ensure web/dist exists so go:embed doesn't fail on fresh clones
+mkdir -p web/dist
+
 # Step 2: First-Time Frontend Setup (npm install & vite build)
 echo -e "\n${CYAN}[2/4] Building web interface...${NC}"
 if [ ! -d "web/node_modules" ]; then
-    echo -e "${GOLD}  📦 First-time run detected: Installing frontend npm dependencies...${NC}"
+    echo -e "${GOLD}  📦 First-time run detected: Installing frontend dependencies in web/...${NC}"
     (cd web && npm install)
 fi
 
 echo -e "  ⚙️ Compiling frontend production bundle (Vite)..."
-(cd web && npx vite build)
+(cd web && npx -y vite build)
 echo -e "${GREEN}  ✓ Web interface built successfully!${NC}"
 
 # Step 3: Compile Go Backend Binary
 echo -e "\n${CYAN}[3/4] Compiling Krypton Go backend binary...${NC}"
-go build -o krypton ./cmd/krypton
+
+if [ -f "cmd/krypton/main.go" ]; then
+    go build -o krypton ./cmd/krypton/main.go
+elif [ -d "cmd/krypton" ]; then
+    go build -o krypton ./cmd/krypton
+else
+    echo -e "${RED}❌ Error: Could not find cmd/krypton entrypoint directory.${NC}"
+    echo -e "Please ensure you are in the root directory of the repository and that 'cmd/krypton/main.go' exists."
+    exit 1
+fi
+
 echo -e "${GREEN}  ✓ Krypton binary compiled cleanly: ${BOLD}./krypton${NC}"
 
 # Step 4: Launch Krypton Server

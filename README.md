@@ -1,64 +1,95 @@
-# Krypton (v1.0) 🚀
+# Krypton DevOps Control Plane (v1.0.0) 🚀
 
-> **Enterprise-Grade Kubernetes Observability, Telemetry, Security & Troubleshooting Dashboard**
+> **Enterprise-Grade Kubernetes Observability, Multi-Cloud Management, Telemetry & Auto-Fix Control Plane**  
+> *Developed and maintained by Sam*
 
-Krypton is a high-performance, single-binary Kubernetes dashboard built with **Go** and **React + TypeScript**. It features a modern Navy Blue & Warm Cream theme, automatic multi-cluster discovery, real-time telemetry monitoring, WebSocket log streaming, interactive cluster topology maps, visual `-o wide` and `-o yaml` inspectors, and automated diagnostic troubleshooting wizards.
+Krypton is an ultra-fast, high-performance, single-binary Kubernetes control plane built with **Go** and **React + TypeScript**. It features a modern dark cinema glassmorphism interface, native non-expiring multi-cloud authentication (AWS EKS, GCP GKE, Azure AKS), real-time telemetry monitoring, WebSocket log streaming, visual topology maps, SOC2 audit diff streaming, dynamic CRD inspection, and automated diagnostic auto-fix engines.
+
+---
+
+### 🚀 1-Click Startup Script
+
+Anyone can start Krypton locally with a single command—no prior setup needed!
+
+```bash
+./start.sh
+```
+
+`start.sh` automatically checks Go & Node.js prerequisites, installs frontend dependencies, compiles the Vite production bundle, builds the Go binary, and launches the server at **`http://localhost:8443`**!
 
 ---
 
 ## 🌟 Key Features
 
-- **📂 Automatic Multi-Cluster Discovery**: Automatically scans `~/.kube/` for all configs and merges all contexts into a 1-click context selector.
-- **📈 Real-Time Telemetry & Monitoring Dashboard**:
-  - Live graphical & numerical CPU millicores and Memory RSS gauges.
-  - Live network throughput Rx/Tx gauges (MB/s).
-  - Health Index score and container restart tracking.
-  - Interactive telemetry trend sparkline charts.
-- **🔒 RBAC Read-Only Error Handling**: Automatically detects Kubernetes `403 Forbidden` / RBAC restrictions and provides clear guidance when a user lacks write permissions.
-- **⚖️ Visual `kubectl scale`**: 1-click replica scaling with live rollout progress bar (`20%` → `60%` → `100%`).
-- **🔄 Visual `kubectl rollout restart`**: 1-click rolling restart of Deployments, StatefulSets, and DaemonSets.
-- **➕ Visual `kubectl apply -f`**: 1-click deployment modal to apply new application JSON/YAML manifests.
-- **✏️ Visual `kubectl edit`**: Live syntax-highlighted manifest editor with 1-click **Save & Apply**.
-- **📝 Live Pod Log Streamer**: WebSocket streaming with **Live/Pause toggle**, container dropdown, and yellow keyword search highlighting (`<mark>`).
-- **📊 Interactive Topology Graph**: Live visual resource dependency graph (`Deployment → ReplicaSet → Pod → Service → ConfigMap`).
-- **🩺 Automated Diagnostic Engine**: 1-click automated troubleshooting wizard to diagnose failing pods, CrashLoopBackOffs, and OOMKilled containers.
+### 🌐 Multi-Cloud & Non-Expiring Credentials Engine
+- **☁️ AWS EKS IAM Role Assumption (`arn:aws:iam::...`)**: Automates native `sts:AssumeRole` so short-lived tokens refresh in the background **without daily `aws sso login` expirations**.
+- **🌐 GCP GKE Service Account Connection**: Uses `gke-gcp-auth-plugin` with Service Account JSON keys for continuous connectivity.
+- **🔷 Azure AKS Service Principal**: Integrated `kubelogin` (Azure AD SPN) authentication.
+- **🔄 Auto-Discovery & Rescan**: Automatically scans `~/.kube/` (`config`, `*.yaml`, `config.d/*`) and merges all contexts in 1 click.
+
+### 📦 Searchable Resource Kind Selector & Extended K8s Support
+- **Categorized Search Selector**: Instant search dropdown (`🔍 Search resource kind...`) categorized into:
+  - 🚀 **Workloads**: Pods, Deployments, **CronJobs**, **Jobs**, StatefulSets, DaemonSets
+  - 🌐 **Network**: Services, Ingresses
+  - 📄 **Config & Security**: ConfigMaps, Secrets, ServiceAccounts
+  - 🛡️ **RBAC**: **Roles**, **ClusterRoles**, RoleBindings, ClusterRoleBindings
+  - 💾 **Storage & Cluster**: PVCs, **StorageClasses**, Nodes
+- **Live Filtering & Column Sorting**: Interactive column sorting (`Name ▲▼`, `Namespace ▲▼`, `Status ▲▼`, `Age ▲▼`) and live keyword searching.
+
+### 🎨 Modern Dark Cinema UI (UI/UX Pro Max 10/10)
+- **Glassmorphism & Ambient Ambience**: Translucent obsidian cards (`backdrop-filter: blur(16px)`), cyber cyan & champagne gold accents, and vector SVG iconography (zero emojis as structural icons).
+- **⌘K / Ctrl+K Command Palette**: Global quick-switcher modal for instant navigation across all views.
+
+### 📈 Telemetry & Monitoring Dashboard
+- **Live Gauges**: Graphical CPU millicores and Memory RSS gauges.
+- **Interactive Sparklines**: Cubic-bezier animated sparklines with hover glowing telemetry inspection.
+- **Health Index Score**: Real-time workload health score tracking.
+
+### 🩺 Automated Diagnostic Engine & 5-Minute Auto-Fix Tracker
+- **CrashLoopBackOff & OOMKilled Diagnostics**: 1-click automated troubleshooting wizard.
+- **Real-Time Polling Tracker**: 5-minute auto-fix readiness timer loop with `🔄 Run Diagnosis & Fix Again` fallback.
+
+### 🛡️ Enterprise Compliance & Audit Stream
+- **Structured JSON Audit Stream (`/audit`)**: Tracks actions (`SCALE`, `EDIT`, `RESTART`, `APPLY`, `DELETE`) with exact spec diffs (`Image: 'old' ➔ 'new'`, `Replicas: 1 ➔ 5`).
+- **Guarded Resource Deletion**: Double-confirmation modal requiring users to type the exact resource name before deleting.
+
+### 🧩 Dynamic CRD Inspector (`/crds`)
+- Inspect Karpenter (`NodePools`, `NodeClaims`, `EC2NodeClasses`), ArgoCD, Cert-Manager, and custom CRDs with a 2-column split-pane manifest viewer.
 
 ---
 
-## 🛠️ Prerequisites & Local Run
+## 🛠️ Local Development & Quick Start
 
 ### Prerequisites
-
-- **Go**: `1.22` or later
+- **Go**: `1.21` or later
 - **Node.js**: `18.0` or later & `npm`
-- **Kubernetes Cluster**: Local or remote cluster (`minikube`, `kind`, `EKS`, `GKE`, `AKS`) with a valid `~/.kube/config`.
 
-### Building the App
+### 1-Click Launch (Recommended)
+```bash
+./start.sh
+```
 
+### Manual Build
 ```bash
 # 1. Build React Frontend
-cd web && npm install && npm run build && cd ..
+cd web && npm install && npx vite build && cd ..
 
 # 2. Build Go Single Binary
-go build -o krypton ./cmd/krypton
-```
+go build -o krypton ./cmd/krypton/main.go
 
-### Running Locally
-
-```bash
+# 3. Run Binary
 ./krypton --port 8443
 ```
+
 Open **`http://localhost:8443`** in your browser.
 
 ---
 
-## ☁️ In-Cluster EKS Deployment & AWS ALB Ingress Guide
+## ☁️ EKS In-Cluster Deployment & AWS ALB Ingress
 
-Krypton can also run **inside an EKS cluster** as a Kubernetes Deployment exposed via AWS Application Load Balancer (ALB).
+Krypton can be deployed **inside an EKS cluster** as a Kubernetes Deployment exposed via AWS Application Load Balancer (ALB).
 
 ### 1. In-Cluster RBAC ServiceAccount
-
-When running inside an EKS cluster, Krypton automatically uses `InClusterConfig()`. Create a restricted or cluster-admin ServiceAccount:
 
 ```yaml
 apiVersion: v1
@@ -77,13 +108,11 @@ subjects:
   namespace: kube-system
 roleRef:
   kind: ClusterRole
-  name: view # Or edit / cluster-admin based on team permissions
+  name: view # Or cluster-admin based on team requirements
   apiGroup: rbac.authorization.k8s.io
 ```
 
-### 2. AWS ALB Ingress Manifest
-
-Expose Krypton using the AWS Load Balancer Controller with HTTPS via AWS Certificate Manager (ACM):
+### 2. EKS Deployment & ALB Ingress Manifest
 
 ```yaml
 apiVersion: apps/v1
@@ -128,7 +157,7 @@ metadata:
   namespace: kube-system
   annotations:
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing # Or internal for corporate VPN
+    alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abc-123
@@ -146,12 +175,9 @@ spec:
               number: 8443
 ```
 
-### 🔒 Security Best Practices for EKS Deployment:
-- **Authentication**: Place an **OAuth2 Proxy** or **AWS Cognito / OIDC** layer in front of the ALB so only authorized SREs/Developers can access the URL.
-- **Network Scope**: Set `alb.ingress.kubernetes.io/scheme: internal` so the ingress is accessible only inside your company VPC / VPN.
-
 ---
 
-## 🛡️ License
+## 🛡️ Maintainer & License
 
-Built with ❤️ for Kubernetes SREs and Developers. MIT License.
+**Developed and maintained by Sam**  
+Built with ❤️ for Kubernetes SREs, DevOps Engineers, and Developers. MIT License.
