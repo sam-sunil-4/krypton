@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { resourceService, clusterService, ResourceSummary } from '../../services/api';
+import { useClusterState } from '../../hooks/useClusterState';
 import PodDetailPanel from './PodDetailPanel';
 import ResourceKindSelect from './ResourceKindSelect';
 
@@ -23,11 +25,10 @@ const RESOURCE_TYPES = [
 ];
 
 export default function ResourceList() {
+  const navigate = useNavigate();
+  const { selectedContext, setSelectedContext, selectedNamespace, setSelectedNamespace } = useClusterState();
   const [contexts, setContexts] = useState<string[]>([]);
-  const [selectedContext, setSelectedContext] = useState<string>('minikube');
-
   const [namespaces, setNamespaces] = useState<string[]>([]);
-  const [selectedNamespace, setSelectedNamespace] = useState<string>('all');
 
   const [selectedResourceType, setSelectedResourceType] = useState<string>('pods');
   const [resources, setResources] = useState<ResourceSummary[]>([]);
@@ -179,7 +180,9 @@ export default function ResourceList() {
             const readyNum = parseInt(readyStr) || 0;
             const totalNum = parseInt(totalStr) || 1;
 
-            if (readyNum >= activeRolloutTrack.targetReplicas && readyNum === totalNum) {
+            // Mark scaling completed when total replicas created matches target OR after 15s timeout fallback
+            const elapsedSeconds = (Date.now() - activeRolloutTrack.startTime) / 1000;
+            if (totalNum >= activeRolloutTrack.targetReplicas || readyNum >= activeRolloutTrack.targetReplicas || elapsedSeconds > 25) {
               setActiveRolloutTrack(prev => prev ? { ...prev, completed: true } : null);
             }
           }
@@ -707,6 +710,32 @@ export default function ResourceList() {
                       </td>
                       <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                          {/* LIVE LOGS BUTTON (For all log-supporting workloads) */}
+                          {['pods', 'deployments', 'statefulsets', 'daemonsets', 'jobs', 'cronjobs'].includes(selectedResourceType.toLowerCase()) && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/logs?context=${encodeURIComponent(selectedContext)}&namespace=${encodeURIComponent(res.namespace || 'default')}&pod=${encodeURIComponent(res.name)}`);
+                              }}
+                              style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 700, backgroundColor: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.4)', color: '#38bdf8', cursor: 'pointer' }}
+                              title="Stream live container logs"
+                            >
+                              📝 Live Logs
+                            </button>
+                          )}
+
+                          {/* UNIVERSAL -O YAML (MANIFEST & EDIT) BUTTON (For ALL 16 resource kinds) */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedResource(res);
+                            }}
+                            style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 700, backgroundColor: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', color: 'var(--cream-gold)', cursor: 'pointer' }}
+                            title="kubectl get -o yaml & edit manifest"
+                          >
+                            📄 -o yaml
+                          </button>
+
                           {isScalableType && (
                             <button
                               onClick={(e) => {
@@ -741,17 +770,6 @@ export default function ResourceList() {
                             title="kubectl delete resource"
                           >
                             🗑️ Delete
-                          </button>
-
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedResource(res);
-                            }}
-                            className="btn-secondary"
-                            style={{ padding: '4px 10px', fontSize: '11px' }}
-                          >
-                            Inspect →
                           </button>
                         </div>
                       </td>

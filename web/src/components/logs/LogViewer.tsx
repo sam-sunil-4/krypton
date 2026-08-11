@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { resourceService, clusterService, ResourceSummary } from '../../services/api';
+import { useClusterState } from '../../hooks/useClusterState';
 
 export default function LogViewer() {
-  const [contexts, setContexts] = useState<string[]>([]);
-  const [selectedContext, setSelectedContext] = useState<string>('minikube');
+  const [searchParams] = useSearchParams();
+  const initialPodParam = searchParams.get('pod') || '';
 
+  const { selectedContext, setSelectedContext, selectedNamespace, setSelectedNamespace } = useClusterState();
+  const [contexts, setContexts] = useState<string[]>([]);
   const [namespaces, setNamespaces] = useState<string[]>([]);
-  const [selectedNamespace, setSelectedNamespace] = useState<string>('default');
 
   const [pods, setPods] = useState<ResourceSummary[]>([]);
-  const [selectedPod, setSelectedPod] = useState<string>('');
+  const [selectedPod, setSelectedPod] = useState<string>(initialPodParam);
 
   const [logs, setLogs] = useState<{ line: string; id: number; isError: boolean }[]>([]);
   const [isLive, setIsLive] = useState<boolean>(true);
@@ -22,7 +25,9 @@ export default function LogViewer() {
       .then(ctxs => {
         if (ctxs && ctxs.length > 0) {
           setContexts(ctxs);
-          setSelectedContext(ctxs[0]);
+          if (!ctxs.includes(selectedContext)) {
+            setSelectedContext(ctxs[0]);
+          }
         } else {
           setContexts(['minikube']);
         }
@@ -48,16 +53,23 @@ export default function LogViewer() {
       .then(podList => {
         setPods(podList || []);
         setPodFetchError(null);
-        if (podList && podList.length > 0) {
-          setSelectedPod(podList[0].name);
+
+        // If URL provided a pod parameter or a matching pod exists, select it
+        if (initialPodParam && podList?.some(p => p.name === initialPodParam || p.name.includes(initialPodParam))) {
+          const match = podList.find(p => p.name === initialPodParam || p.name.includes(initialPodParam));
+          setSelectedPod(match ? match.name : initialPodParam);
+        } else if (podList && podList.length > 0) {
+          if (!selectedPod || !podList.some(p => p.name === selectedPod)) {
+            setSelectedPod(podList[0].name);
+          }
         } else {
-          setSelectedPod('');
+          setSelectedPod(initialPodParam || '');
         }
       })
       .catch((err: any) => {
         const errorMsg = err.response?.data?.error || err.message || 'Failed to fetch pods from cluster';
         setPods([]);
-        setSelectedPod('');
+        if (!initialPodParam) setSelectedPod('');
         setPodFetchError(errorMsg);
       });
   }, [selectedContext, selectedNamespace]);
