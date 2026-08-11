@@ -615,6 +615,53 @@ export default function ResourceList() {
                     </td>
                   </tr>
                 ))
+              ) : fetchError ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: '48px 24px', textAlign: 'center' }}>
+                    <div style={{ maxWidth: '560px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '52px', height: '52px', borderRadius: '14px', backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
+                        🔒
+                      </div>
+                      <div>
+                        <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#f87171', marginBottom: '4px' }}>
+                          Cloud Cluster Connection Failed / Credentials Expired
+                        </h3>
+                        <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5', fontFamily: 'var(--font-mono)' }}>
+                          Context: <strong style={{ color: 'var(--cream-gold)' }}>{selectedContext}</strong>
+                        </p>
+                        <p style={{ fontSize: '12px', color: '#fca5a5', marginTop: '8px', wordBreak: 'break-all', padding: '10px 14px', backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)', textAlign: 'left' }}>
+                          {fetchError}
+                        </p>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                        <button
+                          onClick={() => fetchResources(false)}
+                          className="btn-primary"
+                          style={{ fontSize: '12px', padding: '8px 16px' }}
+                        >
+                          🔄 Retry Connection
+                        </button>
+
+                        <button
+                          onClick={() => window.dispatchEvent(new CustomEvent('open-add-context'))}
+                          style={{ fontSize: '12px', padding: '8px 16px', borderRadius: '6px', backgroundColor: 'var(--bg-app)', border: '1px solid var(--border-strong)', color: 'var(--cream-primary)', fontWeight: 700, cursor: 'pointer' }}
+                        >
+                          ➕ Add / Re-authenticate Context
+                        </button>
+                      </div>
+
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'left', marginTop: '8px', backgroundColor: 'var(--bg-sidebar)', padding: '14px 18px', borderRadius: '8px', border: '1px solid var(--border-subtle)', width: '100%' }}>
+                        <strong style={{ color: 'var(--cream-gold)' }}>How to Re-authenticate Credentials:</strong>
+                        <ul style={{ margin: '6px 0 0 16px', padding: 0, lineHeight: '1.6' }}>
+                          <li><strong>AWS EKS:</strong> Run <code>aws sso login</code> in terminal or click <strong>➕ Add Context ➔ AWS EKS</strong> tab to enter your non-expiring IAM Role ARN or Access Keys.</li>
+                          <li><strong>GCP GKE:</strong> Run <code>gcloud auth login</code> or click <strong>➕ Add Context ➔ GCP GKE</strong> to upload your Service Account JSON Key.</li>
+                          <li><strong>Azure AKS:</strong> Run <code>kubelogin convert-token</code> or use <strong>➕ Add Context ➔ Azure AKS</strong> to set a Service Principal.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
               ) : sortedResources.length === 0 ? (
                 <tr>
                   <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', fontStyle: 'italic' }}>

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -792,7 +793,6 @@ func SetupRouter(clients *k8s.ClientFactory) *gin.Engine {
 			}
 			c.JSON(http.StatusOK, report)
 		})
-	}
 	}
 
 	// --- WebSocket for log streaming (supports both query params and path params) ---

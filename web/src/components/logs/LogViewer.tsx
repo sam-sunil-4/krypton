@@ -38,21 +38,27 @@ export default function LogViewer() {
       .catch(() => {});
   }, [selectedContext]);
 
+  const [podFetchError, setPodFetchError] = useState<string | null>(null);
+
   // Fetch pods list when namespace changes
   useEffect(() => {
     const ctx = selectedContext || 'minikube';
+    setPodFetchError(null);
     resourceService.getResources(ctx, selectedNamespace, 'pods')
       .then(podList => {
         setPods(podList || []);
+        setPodFetchError(null);
         if (podList && podList.length > 0) {
           setSelectedPod(podList[0].name);
         } else {
           setSelectedPod('');
         }
       })
-      .catch(() => {
+      .catch((err: any) => {
+        const errorMsg = err.response?.data?.error || err.message || 'Failed to fetch pods from cluster';
         setPods([]);
         setSelectedPod('');
+        setPodFetchError(errorMsg);
       });
   }, [selectedContext, selectedNamespace]);
 
@@ -93,6 +99,21 @@ export default function LogViewer() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', height: '100%' }} className="animate-fade-in">
       
       {/* Header Controls */}
+      {podFetchError && (
+        <div style={{ padding: '16px 20px', backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '12px', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <span style={{ fontWeight: 800 }}>🔒 Cloud Connection / Credentials Error ({selectedContext}):</span>{' '}
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#fca5a5' }}>{podFetchError}</span>
+          </div>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-add-context'))}
+            style={{ fontSize: '11px', padding: '6px 12px', borderRadius: '6px', backgroundColor: 'var(--bg-app)', border: '1px solid var(--border-strong)', color: 'var(--cream-primary)', fontWeight: 700, cursor: 'pointer' }}
+          >
+            ➕ Re-authenticate Context
+          </button>
+        </div>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '18px 24px', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'var(--cream-glow)', border: '1px solid var(--border-cream)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--cream-primary)' }}>
