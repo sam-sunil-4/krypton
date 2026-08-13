@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
+import { useClusterState } from '../../hooks/useClusterState';
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -7,6 +8,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isCollapsed: externalCollapsed, onToggleCollapse }: SidebarProps) {
+  const { selectedContext } = useClusterState();
   const [internalCollapsed, setInternalCollapsed] = useState<boolean>(() => {
     return localStorage.getItem('krypton_sidebar_collapsed') === 'true';
   });
@@ -197,8 +199,20 @@ export default function Sidebar({ isCollapsed: externalCollapsed, onToggleCollap
         </nav>
       </div>
 
-      {/* Collapse Toggle Footer */}
-      <div style={{ padding: isCollapsed ? '12px 8px' : '16px', borderTop: '1px solid var(--border-subtle)' }}>
+      {/* Active Cluster Status & Collapse Toggle Footer */}
+      <div style={{ padding: isCollapsed ? '12px 8px' : '16px', borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {!isCollapsed && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-card)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+              <span className="status-dot status-dot-healthy" style={{ flexShrink: 0 }}></span>
+              <span style={{ fontWeight: 700, color: 'var(--cream-gold)', fontSize: '11px', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={selectedContext}>
+                {selectedContext.split('/').pop() || selectedContext}
+              </span>
+            </div>
+            <span style={{ fontSize: '9px', color: 'var(--emerald-bright)', fontFamily: 'var(--font-mono)', fontWeight: 800, flexShrink: 0 }}>LIVE</span>
+          </div>
+        )}
+
         <button
           onClick={toggleCollapse}
           style={{

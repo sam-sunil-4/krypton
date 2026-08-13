@@ -1,45 +1,48 @@
 /* ==========================================================================
-   Krypton Control Plane - Modern Dark Cinema Glassmorphism Theme (UI/UX Pro Max)
+   Krypton Control Plane - Dark Emerald & Warm Cream Nature Glassmorphism (UI/UX Pro Max)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-  /* Deep Dark Obsidian & Cinema Surfaces */
-  --bg-app: #030712;
-  --bg-sidebar: #070d1e;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --bg-card-hover: rgba(30, 41, 59, 0.85);
-  --bg-muted: rgba(30, 41, 59, 0.5);
+  /* Biophilic Dark Emerald & Obsidian Surfaces */
+  --bg-app: #020f0a;
+  --bg-sidebar: rgba(3, 20, 14, 0.85);
+  --bg-card: rgba(6, 28, 20, 0.72);
+  --bg-card-hover: rgba(10, 38, 28, 0.85);
+  --bg-muted: rgba(10, 38, 28, 0.55);
 
-  /* Refined Metallic Gold, Cyber Cyan & Emerald Accents */
-  --cream-primary: #f8fafc;
-  --cream-subtle: #cbd5e1;
+  /* Luxury Warm Cream & Golden Emerald Accents */
+  --cream-primary: #fef3c7;
+  --cream-subtle: #fde68a;
   --cream-gold: #f59e0b;
   --cream-glow: rgba(245, 158, 11, 0.25);
+  
+  --emerald-primary: #10b981;
+  --emerald-bright: #34d399;
+  --emerald-glow: rgba(16, 185, 129, 0.25);
   --cyber-cyan: #38bdf8;
-  --emerald-green: #10b981;
 
-  /* Glassmorphism & Translucent Borders */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --border-cream: rgba(245, 158, 11, 0.35);
+  /* Glassmorphism & Translucent Emerald/Cream Borders */
+  --border-subtle: rgba(16, 185, 129, 0.18);
+  --border-strong: rgba(245, 158, 11, 0.35);
+  --border-cream: rgba(254, 243, 199, 0.25);
 
   /* Typography */
-  --text-main: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
+  --text-main: #fef3c7;
+  --text-secondary: #ebdcb2;
+  --text-muted: #94a3b8;
 
   /* Console & Code Editor */
-  --terminal-bg: #020617;
-  --terminal-text: #f8fafc;
+  --terminal-bg: #010a07;
+  --terminal-text: #fef3c7;
 
   /* Status Badges */
-  --badge-green-bg: rgba(16, 185, 129, 0.12);
+  --badge-green-bg: rgba(16, 185, 129, 0.18);
   --badge-green-text: #34d399;
-  --badge-amber-bg: rgba(245, 158, 11, 0.12);
+  --badge-amber-bg: rgba(245, 158, 11, 0.18);
   --badge-amber-text: #fbbf24;
-  --badge-red-bg: rgba(239, 68, 68, 0.12);
+  --badge-red-bg: rgba(239, 68, 68, 0.18);
   --badge-red-text: #f87171;
 
   /* Font Families */
@@ -73,21 +76,20 @@ html, body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(16, 185, 129, 0.25);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--cream-gold);
 }
 
-/* Application Layout */
+/* Application Layout with Moody Dark Emerald Forest Background */
 .app-layout {
   display: flex;
   height: 100vh;
   width: 100vw;
-  background: radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.04) 0%, transparent 40%),
-              radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.03) 0%, transparent 40%),
-              var(--bg-app);
+  background: linear-gradient(180deg, rgba(2, 15, 10, 0.85) 0%, rgba(3, 20, 14, 0.92) 100%),
+              url('/nature_dark_bg.jpg') center/cover no-repeat fixed;
   overflow: hidden;
 }
 
@@ -101,7 +103,8 @@ html, body {
   justify-content: space-between;
   flex-shrink: 0;
   z-index: 20;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(24px);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
 }
 
 /* Nav Links */
@@ -120,17 +123,17 @@ html, body {
 }
 
 .nav-link:hover {
-  color: var(--text-main);
-  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--cream-primary);
+  background-color: rgba(16, 185, 129, 0.12);
   transform: translateX(2px);
 }
 
 .nav-link.active {
   color: var(--cream-primary);
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0.02) 100%);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.18) 0%, rgba(16, 185, 129, 0.04) 100%);
   font-weight: 600;
   border-left: 3px solid var(--cream-gold);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(254, 243, 199, 0.15);
 }
 
 .nav-link.active svg {
@@ -182,12 +185,12 @@ button {
   border-radius: 8px;
   font-weight: 700;
   font-size: 13px;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.5);
 }
 .btn-primary:active {
   transform: translateY(0);
@@ -198,21 +201,21 @@ button {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 /* Drawer Backdrop Overlay */
 .panel-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(2, 6, 23, 0.85);
-  backdrop-filter: blur(8px);
+  background-color: rgba(2, 12, 8, 0.85);
+  backdrop-filter: blur(12px);
   z-index: 1000;
   animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -226,9 +229,10 @@ button {
   width: 55vw;
   min-width: 600px;
   max-width: 900px;
-  background-color: #070d1e;
+  background-color: rgba(4, 20, 14, 0.94);
   border-left: 1px solid var(--border-strong);
-  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.8);
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(24px);
   z-index: 1050;
   display: flex;
   flex-direction: column;
